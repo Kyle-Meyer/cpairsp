@@ -1,0 +1,132 @@
+function FindClosestPairs(P, m):
+
+    n = size(P)
+
+    if m > floor(n / 2):
+
+        return "Error: m cannot be greater than floor(n / 2)"
+
+    
+
+    # Step 1: Initialize an empty list to store pairs and distances
+
+    closest_pairs = []
+
+
+
+    # Step 2: Calculate all pairwise distances
+
+    for i = 1 to n - 1:
+
+        for j = i + 1 to n:
+
+            point1 = P[i]
+
+            point2 = P[j]
+
+            distance = EuclideanDistance(point1, point2)
+
+            closest_pairs.append((point1, point2, distance))
+
+    
+
+    # Step 3: Sort the list of pairs by distance (ascending order)
+
+    closest_pairs.sort_by_distance()
+
+
+
+    # Step 4: Return the first m pairs with smallest distances
+
+    return closest_pairs[0:m]
+
+
+
+function EuclideanDistance((x1, y1), (x2, y2)):
+
+    return sqrt((x2 - x1)^2 + (y2 - y1)^2)
+
+
+
+
+
+function MergeSortClosestPairs(closest_pairs):
+
+    if length(closest_pairs) ≤ 1:
+
+        return closest_pairs  # Base case: A single element or empty list is already sorted
+
+
+
+    # Step 1: Split the list into two halves
+
+    mid = length(closest_pairs) / 2
+
+    left_half = closest_pairs[0:mid]
+
+    right_half = closest_pairs[mid:]
+
+
+
+    # Step 2: Recursively sort both halves
+
+    sorted_left = MergeSortClosestPairs(left_half)
+
+    sorted_right = MergeSortClosestPairs(right_half)
+
+
+
+    # Step 3: Merge the sorted halves
+
+    return MergeByDistance(sorted_left, sorted_right)
+
+
+
+function MergeByDistance(left, right):
+
+    merged_list = []
+
+    i = 0  # Pointer for left list
+
+    j = 0  # Pointer for right list
+
+
+
+    # Step 4: Compare elements from both lists and merge them in order of distance
+
+    while i < length(left) and j < length(right):
+
+        if left[i][2] ≤ right[j][2]:  # Compare based on distance
+
+            merged_list.append(left[i])
+
+            i = i + 1
+
+        else:
+
+            merged_list.append(right[j])
+
+            j = j + 1
+
+
+
+    # Step 5: Append any remaining elements
+
+    while i < length(left):
+
+        merged_list.append(left[i])
+
+        i = i + 1
+
+
+
+    while j < length(right):
+
+        merged_list.append(right[j])
+
+        j = j + 1
+
+
+
+    return merged_list
+
