@@ -4,6 +4,15 @@ from tkinter import ttk
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
+
+# Solarized Dark Colors
+SOLARIZED_BG = "#002b36"
+SOLARIZED_AXES_BG = "#073642"
+SOLARIZED_TEXT = "#839496"
+SOLARIZED_GRID = "#586e75"
+SOLARIZED_POINT_PRIMARY = "#b58900"
+SOLARIZED_POINT_SECONDARY = "#cb4b16"
+
 # Sample points
 points = [(1, 2), (3, 4), (5, 6), (7, 8), (9, 10)]
 
@@ -12,7 +21,7 @@ class PointsPlotterApp:
     def __init__(self, root):
         self.root = root
         self.root.title("Closest Pairs Visualizer")
-
+        self.root.configure(bg=SOLARIZED_BG)  # Set background color
         # Frame for Matplotlib graph
         self.plot_frame = ttk.Frame(root)
         self.plot_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
@@ -21,7 +30,10 @@ class PointsPlotterApp:
         self.fig, self.ax = plt.subplots(figsize=(5, 5))
         self.canvas = FigureCanvasTkAgg(self.fig, master=self.plot_frame)
         self.canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
-
+        self.fig.patch.set_facecolor(SOLARIZED_BG)  # Figure background
+        self.ax.set_facecolor(SOLARIZED_AXES_BG)  # Axes background
+     
+        plt.style.use("dark_background")
         # Frame for input fields and button
         self.input_frame = ttk.Frame(root)
         self.input_frame.pack(pady=10)
@@ -45,19 +57,22 @@ class PointsPlotterApp:
     def plot_points(self, points):
         """Plots the given list of points on the graph."""
         self.ax.clear()  # Clear previous plot
-        self.ax.set_title("Points Visualization")
-        self.ax.set_xlabel("X-axis")
-        self.ax.set_ylabel("Y-axis")
+        self.ax.set_title("Points Visualization", color=SOLARIZED_TEXT)
+        self.ax.set_xlabel("X-axis", color=SOLARIZED_TEXT)
+        self.ax.set_ylabel("Y-axis", color=SOLARIZED_TEXT)
+        self.ax.tick_params(colors=SOLARIZED_TEXT)
+        self.ax.grid(True, color=SOLARIZED_GRID, linestyle="--", linewidth=0.5)
 
         if points:
             x_vals, y_vals = zip(*points)
-            self.ax.scatter(x_vals, y_vals, color="blue", label="Points")
+            colors = [SOLARIZED_POINT_PRIMARY if i % 2 == 0 else SOLARIZED_POINT_SECONDARY for i in range(len(points))]
+            self.ax.scatter(x_vals, y_vals, c=colors, edgecolors="white", label="Points")
 
             # Annotate each point
             for (x, y) in points:
-                self.ax.text(x, y, f"({x}, {y})", fontsize=10, verticalalignment="bottom")
+                self.ax.text(x, y, f"({x}, {y})", fontsize=10, verticalalignment="bottom", color=SOLARIZED_TEXT)
 
-        self.ax.legend()
+        self.ax.legend(facecolor=SOLARIZED_AXES_BG, edgecolor="white")
         self.canvas.draw()  # Redraw canvas
 
     def add_point(self):
