@@ -12,7 +12,9 @@ SOLARIZED_TEXT = "#839496"
 SOLARIZED_GRID = "#586e75"
 SOLARIZED_POINT_PRIMARY = "#b58900"
 SOLARIZED_POINT_SECONDARY = "#cb4b16"
-
+SOLARIZED_ENTRY_BG = "#073642"  # Dark cyan from Solarized
+SOLARIZED_ENTRY_TEXT = "#839496"  # Light gray-blue text
+SOLARIZED_CURSOR = "#b58900"  # Yellow cursor
 # Sample points
 points = [(1, 2), (3, 4), (5, 6), (7, 8), (9, 10)]
 
@@ -32,25 +34,75 @@ class PointsPlotterApp:
         self.canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
         self.fig.patch.set_facecolor(SOLARIZED_BG)  # Figure background
         self.ax.set_facecolor(SOLARIZED_AXES_BG)  # Axes background
-     
+
+        #Styles     
         plt.style.use("dark_background")
+        style = ttk.Style()
+        style.configure("Solarized.TEntry",
+                fieldbackground=SOLARIZED_ENTRY_BG,  # Background color
+                foreground=SOLARIZED_ENTRY_TEXT,    # Text color
+                insertcolor=SOLARIZED_CURSOR)       # Cursor color
+
+        # Set frame background color
+        style.configure("Solarized.TFrame",
+                background=SOLARIZED_BG,  # Frame background color
+                )
+        # Set button styling
+        style.configure("Solarized.TButton",
+                padding=(5, 2),
+                background=SOLARIZED_AXES_BG,   # Background of the button
+                foreground=SOLARIZED_TEXT,      # Text color
+                borderwidth=1,
+                relief="flat")  # Remove 3D effect
+
+        style.map("Solarized.TButton",
+                   background=[("active", SOLARIZED_GRID), ("pressed", SOLARIZED_POINT_SECONDARY)])
+
+        # Set label styling
+        style.configure("Solarized.TLabel",
+                background=SOLARIZED_BG,  # Background color
+                foreground=SOLARIZED_TEXT)  # Text color
+
         # Frame for input fields and button
-        self.input_frame = ttk.Frame(root)
-        self.input_frame.pack(pady=10)
+        # Outer tk.Frame (border color)
+        self.frame_wrapper = tk.Frame(root, bg=SOLARIZED_GRID)
+        self.frame_wrapper.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
 
-        # Input fields
-        ttk.Label(self.input_frame, text="X:").grid(row=0, column=0, padx=5)
-        self.x_entry = ttk.Entry(self.input_frame, width=8)
-        self.x_entry.grid(row=0, column=1, padx=5)
+        # Inner ttk.Frame (styled with Solarized theme)
+        self.input_frame = ttk.Frame(self.frame_wrapper, style="Solarized.TFrame")
+        self.input_frame.pack(fill=tk.BOTH, expand=True, padx=2, pady=2)
 
-        ttk.Label(self.input_frame, text="Y:").grid(row=0, column=2, padx=5)
-        self.y_entry = ttk.Entry(self.input_frame, width=8)
-        self.y_entry.grid(row=0, column=3, padx=5)
+        # Ensure the frame itself expands fully
+        self.input_frame.columnconfigure(0, weight=1)  # Left padding
+        self.input_frame.columnconfigure(1, weight=1)  # X Label
+        self.input_frame.columnconfigure(2, weight=1)  # X Entry
+        self.input_frame.columnconfigure(3, weight=1)  # Y Label
+        self.input_frame.columnconfigure(4, weight=1)  # Y Entry
+        self.input_frame.columnconfigure(5, weight=1)  # Button
+        self.input_frame.columnconfigure(6, weight=1)  # Right padding
 
-        # Add button
-        self.add_button = ttk.Button(self.input_frame, text="Add Point", command=self.add_point)
-        self.add_button.grid(row=0, column=4, padx=10)
+        self.input_frame.rowconfigure(0, weight=1)  # Ensure vertical centering
 
+        # X Label
+        ttk.Label(self.input_frame, text="X:", style="Solarized.TLabel").grid(row=0, column=1, padx=5, pady=5, sticky="e")
+
+        # X Entry
+        self.x_entry = ttk.Entry(self.input_frame, width=8, style="Solarized.TEntry")
+        self.x_entry.grid(row=0, column=2, padx=5, pady=5, sticky="ew")
+
+        # Y Label
+        ttk.Label(self.input_frame, text="Y:", style="Solarized.TLabel").grid(row=0, column=3, padx=5, pady=5, sticky="e")
+
+        # Y Entry
+        self.y_entry = ttk.Entry(self.input_frame, width=8, style="Solarized.TEntry")
+        self.y_entry.grid(row=0, column=4, padx=5, pady=5, sticky="ew")
+
+        # Add Button
+        self.add_button = ttk.Button(self.input_frame, text="Add Point", style="Solarized.TButton", command=self.add_point)
+        self.add_button.grid(row=0, column=5, padx=10, pady=5, sticky="ew")
+
+        # Center contents inside the frame
+        self.input_frame.grid_propagate(False)  # Prevent auto-resizing
         # Plot initial points
         self.plot_points(points)
 
