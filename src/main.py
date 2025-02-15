@@ -2,6 +2,7 @@ from closest import find_closest_pairs, ClosestPairsError
 import tkinter as tk
 from tkinter import ttk, messagebox
 import matplotlib.pyplot as plt
+import random
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 # Solarized Dark Colors
@@ -109,7 +110,7 @@ class PointsPlotterApp:
         if points:
             x_vals, y_vals = zip(*points)
             colors = [SOLARIZED_POINT_PRIMARY if i % 2 == 0 else SOLARIZED_POINT_SECONDARY for i in range(len(points))]
-            self.ax.scatter(x_vals, y_vals, c=colors, edgecolors="white")
+            self.ax.scatter(x_vals, y_vals, c=colors, edgecolors="white", zorder = 2)
             
             for (x, y) in points:
                 self.ax.text(x, y, f"({x}, {y})", fontsize=10, verticalalignment="bottom", color=SOLARIZED_TEXT)
@@ -165,6 +166,44 @@ class PointsPlotterApp:
             )
 
         self.canvas.draw()  # Update the canvas
+    def draw_lines_from_closest_pairs(self, closest_pairs, x):
+        """Draws lines between the first x closest pairs of points with different colors."""
+        self.plot_points(points)  # Redraw the base plot first
+
+        if x > len(closest_pairs):
+            x = len(closest_pairs)  # Limit x to the available pairs
+
+        # Generate distinct colors for each pair
+        colors = [(
+            random.random(),  # Red component
+            random.random(),  # Green component
+            random.random()   # Blue component
+        ) for _ in range(x)]
+
+        for i in range(x):
+            p1, p2, distance = closest_pairs[i]
+            x_vals = [p1[0], p2[0]]
+            y_vals = [p1[1], p2[1]]
+
+            # Plot a line between the two points with a unique color
+            self.ax.plot(
+                x_vals, y_vals, 
+                color=colors[i], linestyle="-", linewidth=2, 
+                label=f"Pair {i+1} (Dist: {distance:.2f})",
+                zorder=1  # Ensure lines are drawn behind the points
+            )
+            # Redraw the points to make sure they are on top
+        self.ax.scatter(
+            [p[0] for p in points], 
+            [p[1] for p in points], 
+            color=[SOLARIZED_POINT_PRIMARY if i % 2 == 0 else SOLARIZED_POINT_SECONDARY for i in range(len(points))],
+            edgecolors='white',
+            s=50, 
+            zorder=2  # Ensure dots appear on top
+        )       
+        self.ax.legend()  # Show the legend with the colored lines
+        self.canvas.draw()  # Update the canvas
+
 if __name__ == "__main__":
     root = tk.Tk()
     app = PointsPlotterApp(root)
