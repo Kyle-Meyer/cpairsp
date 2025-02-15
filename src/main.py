@@ -18,7 +18,6 @@ SOLARIZED_CURSOR = "#b58900"  # Yellow cursor
 # Sample points
 points = [(1, 2), (3, 4), (5, 6), (7, 8), (9, 10)]
 
-
 class PointsPlotterApp:
     def __init__(self, root):
         self.root = root
@@ -27,6 +26,8 @@ class PointsPlotterApp:
         # Frame for Matplotlib graph
         self.plot_frame = ttk.Frame(root)
         self.plot_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        #set the window size
+        self.root.minsize(650, 800)  
 
         # Create the Matplotlib figure and axis
         self.fig, self.ax = plt.subplots(figsize=(5, 5))
@@ -103,6 +104,15 @@ class PointsPlotterApp:
 
         # Center contents inside the frame
         self.input_frame.grid_propagate(False)  # Prevent auto-resizing
+        # Find Closest Pair Button
+        self.find_button = ttk.Button(
+            self.input_frame, 
+            text="Find Closest Pairs", 
+            style="Solarized.TButton", 
+            command=self.find_and_plot_closest_pairs
+        )
+        self.find_button.grid(row=1, column=2, columnspan=3, padx=40, pady=5, sticky="ew")
+
         # Plot initial points
         self.plot_points(points)
 
@@ -138,6 +148,41 @@ class PointsPlotterApp:
             self.y_entry.delete(0, tk.END)
         except ValueError:
             messagebox.showerror("Invalid Input", "Please enter valid numbers for X and Y.")
+
+    def find_and_plot_closest_pairs(self):
+        """Finds the closest pair of points and updates the plot."""
+        if len(points) < 2:
+            messagebox.showwarning("Not Enough Points", "Please add at least two points.")
+            return
+
+        try:
+            closest_pair = find_closest_pairs(points, len(points)/2 - 1 )
+            #self.highlight_closest_pair(closest_pair)
+            self.draw_lines_from_closest_pairs(closest_pair, 1)
+            print(closest_pair)
+        except ClosestPairsError as e:
+            print("Error", f"Could not find closest pair: {e}")
+
+    def draw_lines_from_closest_pairs(self, closest_pairs, x):
+        """Draws lines between the first x closest pairs of points."""
+        self.plot_points(points)  # Redraw the base plot first
+
+        if x > len(closest_pairs):
+            x = len(closest_pairs)  # Limit x to the available pairs
+
+        for i in range(x):
+            p1, p2, distance = closest_pairs[i]
+            x_vals = [p1[0], p2[0]]
+            y_vals = [p1[1], p2[1]]
+
+            # Plot a line between the two points
+            self.ax.plot(
+                x_vals, y_vals, 
+                color="cyan", linestyle="-", linewidth=2, 
+                label=f"Dist: {distance:.2f}"
+            )
+
+        self.canvas.draw()  # Update the canvas
 
 # Run the application
 if __name__ == "__main__":

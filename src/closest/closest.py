@@ -56,9 +56,9 @@ def find_closest_pairs(P, m):
             closest_pairs.append((P[i], P[j], distance))
     
     # Sort the list using merge sort
-    #sorted_pairs = merge_sort_closest_pairs(closest_pairs)
+    sorted_pairs = merge_sort_closest_pairs(closest_pairs)
     
     # Return the first m pairs with smallest distances
-    #return sorted_pairs[:m]
-    return closest_pairs
+    return sorted_pairs
+    #return closest_pairs
 
