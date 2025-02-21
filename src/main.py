@@ -25,6 +25,10 @@ class PointsPlotterApp:
         self.root.title("Closest Pairs Visualizer")
         self.root.configure(bg=SOLARIZED_BG)
         self.root.minsize(650, 600)
+        
+
+        # Counter variable
+        self.find_counter_var = tk.StringVar(value="1")  # Default value set to 1
 
         # Left Panel for Points List
         self.main_frame = ttk.Frame(root, style="Solarized.TFrame")
@@ -36,11 +40,21 @@ class PointsPlotterApp:
         points_label_frame = ttk.Frame(self.left_frame, style="Solarized.TFrame")
         points_label_frame.pack(fill=tk.X)
         ttk.Label(points_label_frame, text="Points List", style="Solarized.TLabel").pack(side=tk.LEFT)
+        
         add_point_button = ttk.Button(points_label_frame, text="+", style="Solarized.TButton", command=self.open_add_point_popup)
         add_point_button.pack(side=tk.RIGHT)
-        find_closest_button = ttk.Button(points_label_frame, text="Find", style="Solarized.TButton", command=self.find_and_plot_closest_pairs)
-        find_closest_button.pack(side=tk.RIGHT, padx=8)
+       
+        # Frame for Find button and counter
+        find_frame = ttk.Frame(points_label_frame, style="Solarized.TFrame")
+        find_frame.pack(side=tk.RIGHT, padx=8)
         
+        find_closest_button = ttk.Button(find_frame, text="Find", style="Solarized.TButton", command=self.find_and_plot_closest_pairs)
+        find_closest_button.pack(side=tk.LEFT)
+
+        # Counter label
+        self.find_counter_entry = ttk.Entry(find_frame, textvariable=self.find_counter_var, width=5, justify="center", style="Solarized.TEntry")
+        self.find_counter_entry.pack(side=tk.LEFT, padx=5)
+
         self.points_listbox = tk.Listbox(self.left_frame, bg=SOLARIZED_ENTRY_BG, fg=SOLARIZED_ENTRY_TEXT)
         self.points_listbox.pack(fill=tk.BOTH, expand=True)
         
@@ -67,6 +81,8 @@ class PointsPlotterApp:
         style.configure("Solarized.TButton", padding=(5, 2), background=SOLARIZED_AXES_BG, foreground=SOLARIZED_TEXT, borderwidth=1, relief="flat")
         style.map("Solarized.TButton", background=[("active", SOLARIZED_GRID), ("pressed", SOLARIZED_POINT_SECONDARY)])
         style.configure("Solarized.TLabel", background=SOLARIZED_BG, foreground=SOLARIZED_TEXT)
+
+
 
     def open_add_point_popup(self):
         """Opens a popup window for adding a new point."""
@@ -135,17 +151,30 @@ class PointsPlotterApp:
             self.points_listbox.insert(tk.END, str(p))
     
     def find_and_plot_closest_pairs(self):
+        """Find and plot closest pairs using the user-defined counter."""
         if len(points) < 2:
             messagebox.showwarning("Not Enough Points", "Please add at least two points.")
             return
-        
+
         try:
+            # Retrieve the user-defined number from the entry field
+            num_lines = int(self.find_counter_var.get())  # Convert entry to integer
+            
+            # Ensure the value is valid
+            if num_lines < 1:
+                messagebox.showerror("Invalid Input", "Please enter a positive integer.")
+                return
+            
             closest_pair = find_closest_pairs(points, len(points)/2 - 1)
             print(closest_pair)
-            self.draw_lines_from_closest_pairs(closest_pair, 1)
+            
+            # Use the user-defined value for the number of lines to draw
+            self.draw_lines_from_closest_pairs(closest_pair, num_lines)
+
+        except ValueError:
+            messagebox.showerror("Invalid Input", "Please enter a valid integer.")
         except ClosestPairsError as e:
             print("Error", f"Could not find closest pair: {e}")
-
     def draw_lines_from_closest_pairs(self, closest_pairs, x):
         """Draws lines between the first x closest pairs of points."""
         self.plot_points(points)  # Redraw the base plot first
