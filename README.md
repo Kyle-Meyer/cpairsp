@@ -2,21 +2,7 @@
 
 This project provides a graphical interface for visualizing a set of 2D points and identifying the closest pairs among them. It also includes a stress test utility to gauge performance, CPU usage, and memory usage under different workloads.
 
-## Table of Contents
-
-- [Project Structure](#project-structure)
-- [Features](#features)
-- [Installation](#installation)
-- [Usage](#usage)
-  - [Running the Graphical Application](#running-the-graphical-application)
-  - [GUI Overview](#gui-overview)
-  - [Stress Test Utility](#stress-test-utility)
-- [Dependencies](#dependencies)
-- [License](#license)
-
----
-
-
+# Overview
 - **closest.py**  
   - Contains functions and logic to compute the closest pairs of points.  
   - Uses a merge sort–based approach to sort pairs by distance.
@@ -78,7 +64,7 @@ for whatever reason if thats not working
     pip install tkinter matplotlib psutil
 ```
 
-3. ** Run the application **
+3. **Run the application**
 ```bash
     python3 src/main.py
 ```
