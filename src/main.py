@@ -4,6 +4,13 @@ from tkinter import ttk, messagebox
 import matplotlib.pyplot as plt
 import random
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from stress_test import stress_test
+
+# Run stress tests
+#stress_test(1000, 10)   # Small dataset
+#stress_test(5000, 50)   # Medium dataset
+#stress_test(10000, 100) # Large dataset
+#stress_test(50000, 500) # Very large dataset
 
 # Solarized Dark Colors
 SOLARIZED_BG = "#002b36"
@@ -41,8 +48,13 @@ class PointsPlotterApp:
         points_label_frame.pack(fill=tk.X)
         ttk.Label(points_label_frame, text="Points List", style="Solarized.TLabel").pack(side=tk.LEFT)
         
+        #button to spawn the add point sub menu
         add_point_button = ttk.Button(points_label_frame, text="+", style="Solarized.TButton", command=self.open_add_point_popup)
-        add_point_button.pack(side=tk.RIGHT)
+        add_point_button.pack(side=tk.RIGHT, padx=(10, 0))
+
+        # button to run the stress test
+        stress_button = ttk.Button(points_label_frame, text="stress", style="Solarized.TButton", command=self.run_stress_test)
+        stress_button.pack(side=tk.RIGHT)
        
         # Frame for Find button and counter
         find_frame = ttk.Frame(points_label_frame, style="Solarized.TFrame")
@@ -81,7 +93,12 @@ class PointsPlotterApp:
         style.configure("Solarized.TButton", padding=(5, 2), background=SOLARIZED_AXES_BG, foreground=SOLARIZED_TEXT, borderwidth=1, relief="flat")
         style.map("Solarized.TButton", background=[("active", SOLARIZED_GRID), ("pressed", SOLARIZED_POINT_SECONDARY)])
         style.configure("Solarized.TLabel", background=SOLARIZED_BG, foreground=SOLARIZED_TEXT)
-
+        style.configure("Solarized.TCombobox", 
+                    fieldbackground=SOLARIZED_ENTRY_BG,   # Background for the text field
+                    background=SOLARIZED_BG,                # Overall background of the widget
+                    foreground=SOLARIZED_TEXT,              # Text color
+                    arrowcolor=SOLARIZED_CURSOR)            # Color of the drop-down arrow
+        
 
 
     def open_add_point_popup(self):
@@ -114,6 +131,67 @@ class PointsPlotterApp:
         
         ttk.Button(button_frame, text="Add Point", style="Solarized.TButton", command=add_point_from_popup).pack(side=tk.LEFT, padx=5)
         ttk.Button(button_frame, text="Cancel", style="Solarized.TButton", command=popup.destroy).pack(side=tk.RIGHT, padx=5)
+        
+    def run_stress_test(self):
+        popup = tk.Toplevel(self.root)
+        popup.title("Run Stress test")
+        popup.configure(bg=SOLARIZED_BG)
+
+        ttk.Label(popup, text="Level of stress: ", style="Solarized.TLabel").grid(row=0, column=0, padx=5, pady=5)
+        
+        # Define your four options
+        stress_options = ["Low", "Medium", "High", "Extreme"]
+
+        # Create a Combobox with the options and set it to be readonly
+        stress_combobox = ttk.Combobox(popup, values=stress_options, state="readonly", style="Solarized.TCombobox")
+        stress_combobox.grid(row=0, column=1, padx=5, pady=5)
+        
+        #check box to write to file
+        write_to_file_var = tk.BooleanVar(value=False)
+        write_to_file_checkbox = tk.Checkbutton(popup,
+                                            text="Write to file",
+                                            variable=write_to_file_var,
+                                            bg=SOLARIZED_BG,
+                                            fg=SOLARIZED_TEXT,
+                                            activebackground=SOLARIZED_BG,
+                                            activeforeground=SOLARIZED_TEXT,
+                                            selectcolor=SOLARIZED_ENTRY_BG,
+                                            highlightthickness=0,
+                                            borderwidth=0,
+                                            relief="flat")
+
+
+        write_to_file_checkbox.grid(row=0, column=2, padx=5, pady=5)
+        # Optionally, set a default selection (index 0 here)
+        stress_combobox.current(0)
+
+        button_frame = ttk.Frame(popup, style="Solarized.TFrame")
+        button_frame.grid(row=2, column=0, columnspan=2, pady=10)
+        
+        ttk.Button(
+            button_frame,
+            text="Run Stress",
+            style="Solarized.TButton",
+            command=lambda: self.stress_wrapper(stress_combobox.get(), write_to_file_var.get())
+        ).pack(side=tk.LEFT, padx=5)
+        ttk.Button(
+            button_frame,
+            text="Cancel",
+            style="Solarized.TButton",
+            command=popup.destroy
+        ).pack(side=tk.RIGHT, padx=5)
+    
+    def stress_wrapper(self, stress_option, write_to_file):
+        if stress_option == "Low":
+            stress_test(100, write_to_file)
+        elif stress_option == "Medium":
+            stress_test(200, write_to_file)
+        elif stress_option == "High":
+            stress_test(400, write_to_file)
+        elif stress_option == "Extreme":
+            stress_test(800, write_to_file)
+        else:
+            print("you should never see this")
 
     def plot_points(self, points):
         self.ax.clear()
@@ -125,7 +203,7 @@ class PointsPlotterApp:
         
         if points:
             x_vals, y_vals = zip(*points)
-            colors = [SOLARIZED_POINT_PRIMARY if i % 2 == 0 else SOLARIZED_POINT_SECONDARY for i in range(len(points))]
+            colors = [SOLARIZED_POINT_PRIMARY]
             self.ax.scatter(x_vals, y_vals, c=colors, edgecolors="white", zorder = 2)
             
             for (x, y) in points:
@@ -165,7 +243,7 @@ class PointsPlotterApp:
                 messagebox.showerror("Invalid Input", "Please enter a positive integer.")
                 return
             
-            closest_pair = find_closest_pairs(points, len(points)/2 - 1)
+            closest_pair = find_closest_pairs(points)
             print(closest_pair)
             
             # Use the user-defined value for the number of lines to draw
@@ -175,6 +253,7 @@ class PointsPlotterApp:
             messagebox.showerror("Invalid Input", "Please enter a valid integer.")
         except ClosestPairsError as e:
             print("Error", f"Could not find closest pair: {e}")
+
     def draw_lines_from_closest_pairs(self, closest_pairs, x):
         """Draws lines between the first x closest pairs of points."""
         self.plot_points(points)  # Redraw the base plot first
@@ -194,7 +273,8 @@ class PointsPlotterApp:
                 label=f"Dist: {distance:.2f}"
             )
 
-        self.canvas.draw()  # Update the canvas
+        self.canvas.draw()  # Update the canvas\
+
     def draw_lines_from_closest_pairs(self, closest_pairs, x):
         """Draws lines between the first x closest pairs of points with different colors."""
         self.plot_points(points)  # Redraw the base plot first
@@ -225,7 +305,7 @@ class PointsPlotterApp:
         self.ax.scatter(
             [p[0] for p in points], 
             [p[1] for p in points], 
-            color=[SOLARIZED_POINT_PRIMARY if i % 2 == 0 else SOLARIZED_POINT_SECONDARY for i in range(len(points))],
+            color=[SOLARIZED_POINT_PRIMARY],
             edgecolors='white',
             s=50, 
             zorder=2  # Ensure dots appear on top

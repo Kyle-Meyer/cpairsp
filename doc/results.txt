@@ -1,0 +1,25 @@
+--------------------------------------------------
+Timestamp: 2025-02-22 23:01:49
+Test with 100 points:
+Execution time: 0.0247 seconds
+Memory used: 0.47 MB (Peak: 0.55 MB)
+Average CPU usage during computation: 25.00%
+--------------------------------------------------
+Timestamp: 2025-02-22 23:01:52
+Test with 200 points:
+Execution time: 0.1179 seconds
+Memory used: 1.72 MB (Peak: 2.04 MB)
+Average CPU usage during computation: 16.70%
+--------------------------------------------------
+Timestamp: 2025-02-22 23:01:55
+Test with 400 points:
+Execution time: 0.6505 seconds
+Memory used: 7.27 MB (Peak: 8.62 MB)
+Average CPU usage during computation: 21.55%
+--------------------------------------------------
+Timestamp: 2025-02-22 23:02:00
+Test with 800 points:
+Execution time: 2.9925 seconds
+Memory used: 29.18 MB (Peak: 34.26 MB)
+Average CPU usage during computation: 20.52%
+--------------------------------------------------

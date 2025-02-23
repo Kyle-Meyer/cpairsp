@@ -41,13 +41,10 @@ def merge_sort_closest_pairs(closest_pairs):
     
     return merge_by_distance(left_half, right_half)
 
-def find_closest_pairs(P, m):
+def find_closest_pairs(P):
     """Finds the m closest pairs from a list of points."""
     n = len(P)
-    if m > n // 2:
-        print("Error: m cannot be greater than floor(n / 2)")
-        raise ClosestPairsError("Error: m cannot be greater than floor(n / 2)")
-    
+   
     # Compute all pairwise distances
     closest_pairs = []
     for i in range(n - 1):
